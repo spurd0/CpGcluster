@@ -32,7 +32,7 @@ my $fromWhatParamName = 'fromWhat';
 my $screenParamName = 'screen';
 my $screenInputParamName = 'screenInput';
 my $sequence = 'sequence.fa';
-my $outpuFileName = 'results.txt';
+my $outpuLogFileName = 'output-log.txt';
 my $fileUploadParamName = 'fileUpload';
 my $dParamName = 'd';
 my $safe_filename_characters = "a-zA-Z0-9_.-"; 
@@ -79,7 +79,7 @@ print "      ***          Calculating P-values        ***\n";
 @protoislas = &GetCGI_features(\@protoislas);
 
 &OUT(\@protoislas);
-
+&PrintResult();
 
 
 ####################################################################
@@ -92,13 +92,9 @@ sub GetDefault{
   my $fromScreen = $fromWhat eq $screenParamName;
   if($fromScreen){
     my $screenInput = $q->param($screenInputParamName);
-    if($screenInput =~ /^[actgACTG]+$/){
-      open(FH, '>', $sequence) or die $!; 
-      print FH $screenInput; 
-      close(FH); 
-    }else{
-      die "Input sequence should only contains actg or ACTG symbols!\n";
-    }
+    open(FH, '>', $sequence) or die $!; 
+    print FH $screenInput; 
+    close(FH); 
   }else{
     my $filename = $q->param($fileUploadParamName); 
       if ( !$filename ) { 
@@ -125,19 +121,9 @@ sub GetDefault{
   if($getd < 0 or $getd > 100){
     die "The Percentile must be between 0 and 100\n";
   }
-  else{
-    print "Missing parameters!\n\n";
-    print "Example for the usage of CpGcluster:\n";
-    die "perl CpGcluster.pl [sequence]  [d]  [P-value]  [output]\n\n";
-  }
   $plimit = $q->param('pValue');
   if($plimit > 1){
     die "The maximal P-value you have choosen is higher than 1!\nPlease revise the order of the input parameters\n";
-  }
-  else{
-    print "Missing parameters!\n\n";
-    print "Example for the usage of CpGcluster:\n";
-    die "perl CpGcluster.pl [sequence]  [d]  [P-value]  [output]\n\n";
   }
   $output = 'output.txt';
   if(!($sequence)){
@@ -155,10 +141,6 @@ sub GetDefault{
     print "P-value:    The maximal P-value under which a CpG cluster is considered as a\n";
     print "            CpG island\n";
     print "            The recommended limit is 1E-5\n\n";
-
-    print "output:     The output file name\n";
-    print "            If ommited; CpGcluster creates the output file in the\n"; 
-    print "            input file directory with *.cpg extension\n\n";
     die "\n";
   }
   else{
@@ -167,7 +149,6 @@ sub GetDefault{
     print "[sequence]    $sequence\n";
     print "[d]           $getd\n";
     print "[P-value]     $plimit\n";
-    print "[output]      $output\n";
     print "---------------------------------------------------------------------------\n\n";
   }
 }
@@ -205,7 +186,7 @@ sub OUT {
     $c++;
   }
   close(OO);
-  open(O,">$output-log.txt") or die "can't open $output-log.txt";
+  open(O,">$outpuLogFileName") or die "can't open $outpuLogFileName";
   print O "Basic statistics of the input sequence: $ID\n";
   printf O "Length: %d\n",$seqlen;
   printf O "Length without Ns: %d\n",$seqlenbruto;
@@ -224,6 +205,26 @@ sub OUT {
   }
 
   close(O);
+}
+
+sub PrintResult{
+  print "\n      ***            Output statistics          ***\n";
+  open(FH, '<', $outpuLogFileName) or die $!;
+ 
+  while(<FH>){
+    print $_;
+  }
+ 
+  close(FH);
+
+  print "\n      ***            Output clustering         ***\n";
+  open(FH, '<', $output) or die $!;
+ 
+  while(<FH>){
+    print $_;
+  }
+ 
+  close(FH);
 }
 
 ## Get CpG cluster
