@@ -3,11 +3,11 @@
         <title>Form for CpGcluster</title>
     </head>
 
-    <body link="#0000FF" vlink="#800080" background="/mgs/images/background.jpg">
+    <body link="#0000FF" vlink="#800080">
 
         <h1 align="center">CpGcluster</h1>
 
-        <form method="POST" ENCTYPE="multipart/form-data" action="/home/user/work/cpg/cpg_web/CpGCluster.pl">
+        <form method="POST" ENCTYPE="multipart/form-data" action="CpGCluster.pl">
             <b>Input DNA Sequence :</b>
             <br>
             <input type="RADIO" size="200" name="fromWhat" value="screen" checked="checked"> from Screen:
@@ -15,15 +15,14 @@
             <textarea cols="75" maxlength="400" name="screenInput" rows="2"></textarea>
             <br> 
             <b><input type="radio" name="fromWhat" value="fileUpload"></b>
-            <a href="/cgi-bin/mgs/common/do_it.exe?s=Helps&amp;e=FileUpload">from File: </a>
+            <a href="cpg_description.htm">from File: </a>
             <input type="File" name="fileUpload" size="35">
-            <a href="/cgi-bin/mgs/common/do_it.exe?s=Helps&amp;e=FileFormats">File formats</a> here. 
             <hr>
             <p>
-                <a href="ab_research.htm#lmin">d</a><strong>:</strong> <input type="text" name="d" size="3" value="50">
+                <a href="cpg_description.htm">d</a><strong>:</strong> <input type="text" name="d" size="3" value="50">
             </p>
             <p>
-                <a href="ab_research.htm#lmax">P-value</a>:<input type="text" name="pValue" size="5" value="1E-5">
+                <a href="cpg_description.htm">P-value</a>:<input type="text" name="pValue" size="5" value="1E-5">
             </p>
             <p>
                 <input type="SUBMIT" value="Caclulate clustering">
