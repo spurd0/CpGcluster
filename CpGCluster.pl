@@ -32,13 +32,14 @@ my $fromWhatParamName = 'fromWhat';
 my $screenParamName = 'screen';
 my $screenInputParamName = 'screenInput';
 my $sequence = 'sequence.fa';
+my $output = 'output.txt';
 my $outpuLogFileName = 'output-log.txt';
 my $fileUploadParamName = 'fileUpload';
 my $dParamName = 'd';
 my $safe_filename_characters = "a-zA-Z0-9_.-"; 
 #################################
 
-my ($output, $d, $plimit, $getd ,@dist_n);
+my ($d, $plimit, $getd ,@dist_n);
 
 &GetDefault();
 
@@ -80,6 +81,7 @@ print "      ***          Calculating P-values        ***\n";
 
 &OUT(\@protoislas);
 &PrintResult();
+&DeleteTempFiles();
 
 
 ####################################################################
@@ -125,7 +127,6 @@ sub GetDefault{
   if($plimit > 1){
     die "The maximal P-value you have choosen is higher than 1!\nPlease revise the order of the input parameters\n";
   }
-  $output = 'output.txt';
   if(!($sequence)){
 
     print "Example for the usage of CpGcluster:\n\n";
@@ -225,6 +226,12 @@ sub PrintResult{
   }
  
   close(FH);
+}
+
+sub DeleteTempFiles{
+  unlink("$output");
+  unlink("$outpuLogFileName");
+  unlink("$sequence");
 }
 
 ## Get CpG cluster
