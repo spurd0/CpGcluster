@@ -25,7 +25,20 @@
 use strict;
 use CGI;
 
-my ($output, $sequence, $d, $plimit, $getd ,@dist_n);
+################################# 
+### Input parameters ##################
+#################################
+my $fromWhatParamName = 'fromWhat';
+my $screenParamName = 'screen';
+my $screenInputParamName = 'screenInput';
+my $sequence = 'sequence.fa';
+my $outpuFileName = 'results.txt';
+my $fileUploadParamName = 'fileUpload';
+my $dParamName = 'd';
+my $safe_filename_characters = "a-zA-Z0-9_.-"; 
+#################################
+
+my ($output, $d, $plimit, $getd ,@dist_n);
 
 &GetDefault();
 
@@ -75,24 +88,40 @@ print "      ***          Calculating P-values        ***\n";
 
 sub GetDefault{
   my $q = CGI->new();
-  my $fromWhat = $q->param('fromWhat');
-  my $fromScreen = $fromWhat eq "screen";
+  my $fromWhat = $q->param($fromWhatParamName);
+  my $fromScreen = $fromWhat eq $screenParamName;
   if($fromScreen){
-    my $screenInput = $q->param('screenInput');
+    my $screenInput = $q->param($screenInputParamName);
     if($screenInput =~ /^[actgACTG]+$/){
-      my $filename = 'sequence.txt';
-      open(FH, '>', $filename) or die $!;
-      print FH $filename;
-      close(FH);
-      $sequence = 'sequence';
+      open(FH, '>', $sequence) or die $!; 
+      print FH $screenInput; 
+      close(FH); 
     }else{
       die "Input sequence should only contains actg or ACTG symbols!\n";
     }
   }else{
-    die "Sequence from file isn't ready yet\n"; 
+    my $filename = $q->param($fileUploadParamName); 
+      if ( !$filename ) { 
+        die "There was a problem uploading your sequence (try a smaller file)."; 
+      } 
+    my ( $name, $path, $extension ) = fileparse ( $filename, '..*' ); 
+    $filename = $name . $extension; 
+    $filename =~ tr/ /_/; $filename =~ s/[^$safe_filename_characters]//g; 
+    if ( $filename =~ /^([$safe_filename_characters]+)$/ ) { 
+      $filename = $1; 
+    } else { 
+      die "Filename contains invalid characters"; 
+    } 
+    my $upload_filehandle = $q->upload($fileUploadParamName); 
+    open ( UPLOADFILE, $sequence ) or die "$!"; 
+    binmode UPLOADFILE; 
+    while ( <$upload_filehandle> ) { 
+      print UPLOADFILE; 
+    } 
+    close UPLOADFILE;
   }
 
-  $getd = $q->param('d');
+  $getd = $q->param($dParamName);
   if($getd < 0 or $getd > 100){
     die "The Percentile must be between 0 and 100\n";
   }
