@@ -36,6 +36,7 @@ my $output = 'output.txt';
 my $outpuLogFileName = 'output-log.txt';
 my $fileUploadParamName = 'fileUpload';
 my $dParamName = 'd';
+my $pValueParamName = 'pValue';
 my $safe_filename_characters = "a-zA-Z0-9_.-"; 
 #################################
 
@@ -123,7 +124,7 @@ sub GetDefault{
   if($getd < 0 or $getd > 100){
     die "The Percentile must be between 0 and 100\n";
   }
-  $plimit = $q->param('pValue');
+  $plimit = $q->param($pValueParamName);
   if($plimit > 1){
     die "The maximal P-value you have choosen is higher than 1!\nPlease revise the order of the input parameters\n";
   }
