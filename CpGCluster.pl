@@ -24,6 +24,9 @@
 ############################################################################
 use strict;
 use CGI;
+use File::Temp qw/ tempdir /;
+
+print "Content-type: text/html\r\n\r\n";
 
 ################################# 
 ### Input parameters ##################
@@ -31,9 +34,9 @@ use CGI;
 my $fromWhatParamName = 'fromWhat';
 my $screenParamName = 'screen';
 my $screenInputParamName = 'screenInput';
-my $sequence = 'sequence.fa';
-my $output = 'output.txt';
-my $outpuLogFileName = 'output-log.txt';
+my $sequence = new File::Temp( UNLINK => 1 );
+my $output = new File::Temp( UNLINK => 1 );
+my $outpuLogFileName = new File::Temp( UNLINK => 1 );
 my $fileUploadParamName = 'fileUpload';
 my $dParamName = 'd';
 my $pValueParamName = 'pValue';
@@ -82,7 +85,6 @@ print "      ***          Calculating P-values        ***\n";
 
 &OUT(\@protoislas);
 &PrintResult();
-&DeleteTempFiles();
 
 
 ####################################################################
@@ -95,9 +97,8 @@ sub GetDefault{
   my $fromScreen = $fromWhat eq $screenParamName;
   if($fromScreen){
     my $screenInput = $q->param($screenInputParamName);
-    open(FH, '>', $sequence) or die $!; 
-    print FH $screenInput; 
-    close(FH); 
+    print $sequence $screenInput; 
+    close($sequence); 
   }else{
     my $filename = $q->param($fileUploadParamName); 
       if ( !$filename ) { 
@@ -227,12 +228,6 @@ sub PrintResult{
   }
  
   close(FH);
-}
-
-sub DeleteTempFiles{
-  unlink("$output");
-  unlink("$outpuLogFileName");
-  unlink("$sequence");
 }
 
 ## Get CpG cluster
