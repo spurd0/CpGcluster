@@ -7,7 +7,7 @@
 
         <h1 align="center">CpGcluster</h1>
 
-        <form method="POST" ENCTYPE="multipart/form-data" action="CpGCluster.pl">
+        <form method="POST" ENCTYPE="multipart/form-data" action="cgi-bin/CpGCluster.pl">
             <b>Input DNA Sequence :</b>
             <br>
             <input type="RADIO" size="200" name="fromWhat" value="screen" checked="checked"> from Screen:
@@ -16,7 +16,7 @@
             <br> 
             <b><input type="radio" name="fromWhat" value="fileUpload"></b>
             <a href="cpg_description.htm">from File: </a>
-            <input type="File" name="fileUpload" size="35">
+            <input type="file" name="fileUpload" size="35">
             <hr>
             <p>
                 <a href="cpg_description.htm">d</a><strong>:</strong> <input type="text" name="d" size="3" value="50">

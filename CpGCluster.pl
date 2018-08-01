@@ -26,8 +26,10 @@ use strict;
 use CGI;
 use File::Temp qw/ tempdir /;
 
-print "Content-type: text/html\r\n\r\n";
+$CGI::POST_MAX = 1024 * 1024 * 100;  # max 10MB upload file
 
+print "Content-type: text/html\r\n\r\n";
+print "<pre>";
 ################################# 
 ### Input parameters ##################
 #################################
@@ -85,7 +87,7 @@ print "      ***          Calculating P-values        ***\n";
 
 &OUT(\@protoislas);
 &PrintResult();
-
+print "</pre>";
 
 ####################################################################
 #######   SUBFUNCTIONS   ###########################################
@@ -100,34 +102,23 @@ sub GetDefault{
     print $sequence $screenInput; 
     close($sequence); 
   }else{
-    my $filename = $q->param($fileUploadParamName); 
-      if ( !$filename ) { 
-        die "There was a problem uploading your sequence (try a smaller file)."; 
-      } 
-    my ( $name, $path, $extension ) = fileparse ( $filename, '..*' ); 
-    $filename = $name . $extension; 
-    $filename =~ tr/ /_/; $filename =~ s/[^$safe_filename_characters]//g; 
-    if ( $filename =~ /^([$safe_filename_characters]+)$/ ) { 
-      $filename = $1; 
-    } else { 
-      die "Filename contains invalid characters"; 
-    } 
-    my $upload_filehandle = $q->upload($fileUploadParamName); 
-    open ( UPLOADFILE, $sequence ) or die "$!"; 
-    binmode UPLOADFILE; 
-    while ( <$upload_filehandle> ) { 
-      print UPLOADFILE; 
-    } 
-    close UPLOADFILE;
+    my $filehandle  = $q->upload( $fileUploadParamName );
+    if ( !$filehandle && $q->cgi_error() ) {
+        print "There was a problem uploading your sequence (try a smaller file)."; 
+        die;
+}
+    $sequence = $q->tmpFileName( $filehandle );
   }
 
   $getd = $q->param($dParamName);
   if($getd < 0 or $getd > 100){
-    die "The Percentile must be between 0 and 100\n";
+    print "The Percentile must be between 0 and 100\n";
+    die;
   }
   $plimit = $q->param($pValueParamName);
   if($plimit > 1){
-    die "The maximal P-value you have choosen is higher than 1!\nPlease revise the order of the input parameters\n";
+    print "The maximal P-value you have choosen is higher than 1!\nPlease revise the order of the input parameters\n";
+    die;
   }
   if(!($sequence)){
 
@@ -149,7 +140,6 @@ sub GetDefault{
   else{
     print "\n---------------------------------------------------------------------------\n";
     print "CpCcluster runs with the following parameters:\n\n";
-    print "[sequence]    $sequence\n";
     print "[d]           $getd\n";
     print "[P-value]     $plimit\n";
     print "---------------------------------------------------------------------------\n\n";
@@ -164,7 +154,8 @@ sub GetFA{
   my $z = <I>;
   my $tes = substr($z,0,1);
   if($tes ne ">"){
-    die "Sequence seems not to be in fasta format !!!!";
+    print "Sequence seems not to be in fasta format !!!!";
+    die;
   }
   my @z = split(/\s+/," $z");
   $z = $z[1];
